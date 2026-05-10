@@ -1,66 +1,49 @@
 # Makefile for LaTeX CV compilation with automatic customer folder detection
 #
-# The PDF is automatically output into a folder matching the current Git branch,
-# and the PDF file itself is also named after the branch.
-# This way: one branch = one customer = one folder = one PDF with matching name.
+# Behavior:
+#   - On a feature branch (e.g. 2026.05.algovia.airbus):
+#       Finds all .tex files inside the branch folder, compiles each one,
+#       and outputs the PDF(s) in the same folder.
+#   - On main/master:
+#       Compiles main.tex from root and outputs to root.
 #
 # Usage:
-#   make                          # Auto: PDF named after branch, in branch folder
-#   make CUSTOMER=                # Override: output to root
-#   make OUTPUT_NAME=custom_name  # Custom filename
-#
-# Examples:
-#   make                                    # 2026.05.algovia.airbus/2026.05.algovia.airbus.pdf
-#   make CUSTOMER=                          # Root, date-based name
-#   make OUTPUT_NAME=cv_daisei              # Branch folder, custom name
+#   make                          # Auto-detect and compile
+#   make CUSTOMER=                # Force root mode
+#   make clean                    # Remove auxiliary files
 
-# Auto-detect branch and customer folder from current Git branch
-# On main/master, outputs to root with date-based name
+# Auto-detect branch
 BRANCH := $(shell git branch --show-current 2>/dev/null)
 
-# Default output name — PDF name = branch name
+# Determine mode
 ifeq ($(BRANCH),main)
-OUTPUT_NAME ?= cv_hamza_jeddad_detailed_resume_en_$(shell date +%Y%m%d)
-CUSTOMER ?=
+MODE := root
 else ifeq ($(BRANCH),master)
-OUTPUT_NAME ?= cv_hamza_jeddad_detailed_resume_en_$(shell date +%Y%m%d)
-CUSTOMER ?=
+MODE := root
 else
-OUTPUT_NAME ?= $(BRANCH)
-CUSTOMER ?= $(BRANCH)
+MODE := customer
 endif
-
-# Allow manual override of CUSTOMER (e.g. make CUSTOMER= to force root)
-ifneq ($(origin CUSTOMER),undefined)
-  ifeq ($(CUSTOMER),)
-    OUTDIR = .
-  else
-    OUTDIR = $(CUSTOMER)
-  endif
-else
-  ifeq ($(CUSTOMER),)
-    OUTDIR = .
-  else
-    OUTDIR = $(CUSTOMER)
-  endif
-endif
-
-# Full output path
-OUTPUT_PATH = $(OUTDIR)/$(OUTPUT_NAME).pdf
 
 # LaTeX compiler settings
 LATEX = pdflatex
 BIBTEX = bibtex
 MAIN = main
 
-# Default target
+# Default target: compile all .tex in the relevant folder
 .PHONY: all
-all: compile rename
+all:
+ifneq ($(origin CUSTOMER),undefined)
+	$(MAKE) compile-customer CUSTOMER=$(CUSTOMER)
+else ifeq ($(MODE),root)
+	$(MAKE) compile-root
+else
+	$(MAKE) compile-customer CUSTOMER=$(BRANCH)
+endif
 
-# Compile the LaTeX document
-.PHONY: compile
-compile:
-	@echo "Compiling LaTeX document..."
+# Compile main.tex from root
+.PHONY: compile-root
+compile-root:
+	@echo "=== Compiling main.tex (root mode) ==="
 	$(LATEX) -interaction=nonstopmode $(MAIN).tex
 	@if grep -q "\\citation" $(MAIN).aux 2>/dev/null; then \
 		echo "Running bibtex..."; \
@@ -68,59 +51,73 @@ compile:
 		$(LATEX) -interaction=nonstopmode $(MAIN).tex; \
 	fi
 	$(LATEX) -interaction=nonstopmode $(MAIN).tex
-	@echo "Compilation complete!"
+	@echo "=== Done: main.pdf ==="
 
-# Rename the output PDF
-.PHONY: rename
-rename:
-	@if [ -f "$(MAIN).pdf" ]; then \
-		mkdir -p $(OUTDIR); \
-		cp $(MAIN).pdf $(OUTPUT_PATH); \
-		echo "PDF copied to: $(OUTPUT_PATH)"; \
-	else \
-		echo "Error: $(MAIN).pdf not found!"; \
+# Compile all .tex files inside a customer folder
+# Compiles from root (so altacv.cls is found) but outputs into the customer folder
+# Usage: make compile-customer CUSTOMER=folder_name
+.PHONY: compile-customer
+compile-customer:
+	@echo "=== Compiling .tex files in $(CUSTOMER)/ ==="
+	@TEX_FILES=$$(ls $(CUSTOMER)/*.tex 2>/dev/null); \
+	if [ -z "$$TEX_FILES" ]; then \
+		echo "No .tex files found in $(CUSTOMER)/"; \
 		exit 1; \
-	fi
+	fi; \
+	for tex in $$TEX_FILES; do \
+		base=$$(basename "$$tex" .tex); \
+		echo ""; \
+		echo "--- Compiling $$base.tex (output to $(CUSTOMER)/) ---"; \
+		$(LATEX) -interaction=nonstopmode -output-directory=$(CUSTOMER) $${tex}; \
+		if grep -q "\\citation" $(CUSTOMER)/$$base.aux 2>/dev/null; then \
+			cd $(CUSTOMER) && $(BIBTEX) $$base && cd ..; \
+			$(LATEX) -interaction=nonstopmode -output-directory=$(CUSTOMER) $${tex}; \
+		fi; \
+		$(LATEX) -interaction=nonstopmode -output-directory=$(CUSTOMER) $${tex}; \
+		echo "--- Done: $(CUSTOMER)/$$base.pdf ---"; \
+	done
+	@echo "=== All compilations complete ==="
 
 # Clean auxiliary files
 .PHONY: clean
 clean:
-	@echo "Cleaning auxiliary files..."
+	@echo "Cleaning auxiliary files from root..."
 	rm -f $(MAIN).aux $(MAIN).log $(MAIN).out $(MAIN).toc \
 	      $(MAIN).bbl $(MAIN).blg $(MAIN).bcf $(MAIN).run.xml \
 	      $(MAIN).fls $(MAIN).fdb_latexmk $(MAIN).synctex.gz
+ifneq ($(BRANCH),main)
+ifneq ($(BRANCH),master)
+	@echo "Cleaning auxiliary files from $(BRANCH)/..."
+	rm -f $(BRANCH)/*.aux $(BRANCH)/*.log $(BRANCH)/*.out $(BRANCH)/*.toc \
+	      $(BRANCH)/*.bbl $(BRANCH)/*.blg $(BRANCH)/*.bcf $(BRANCH)/*.run.xml \
+	      $(BRANCH)/*.fls $(BRANCH)/*.fdb_latexmk $(BRANCH)/*.synctex.gz
+endif
+endif
 	@echo "Clean complete!"
 
 # Clean everything including PDFs
 .PHONY: cleanall
 cleanall: clean
-	@echo "Removing all PDF files..."
+	@echo "Removing root PDFs..."
 	rm -f $(MAIN).pdf cv_*.pdf
+ifneq ($(BRANCH),main)
+ifneq ($(BRANCH),master)
+	@echo "Removing customer folder PDFs..."
+	rm -f $(BRANCH)/*.pdf
+endif
+endif
 	@echo "All files removed!"
-
-# Quick build (single pass, for minor changes)
-.PHONY: quick
-quick:
-	$(LATEX) -interaction=nonstopmode $(MAIN).tex
-	@if [ -f "$(MAIN).pdf" ]; then \
-		mkdir -p $(OUTDIR); \
-		cp $(MAIN).pdf $(OUTPUT_PATH); \
-		echo "Quick build complete: $(OUTPUT_PATH)"; \
-	fi
 
 # Help target
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  make              - Auto: PDF named after branch, in branch folder"
-	@echo "  make CUSTOMER=    - Override: output to root instead"
-	@echo "  make OUTPUT_NAME=... - Custom output filename"
-	@echo "  make quick        - Quick single-pass compilation"
+	@echo "  make              - Auto: compile .tex files in current branch folder"
+	@echo "  make CUSTOMER=    - Override: compile main.tex from root"
 	@echo "  make clean        - Remove auxiliary files"
 	@echo "  make cleanall     - Remove all generated files including PDFs"
 	@echo "  make help         - Show this help message"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make                        # 2026.05.algovia.airbus/2026.05.algovia.airbus.pdf"
-	@echo "  make CUSTOMER=              # Override: root output"
-	@echo "  make OUTPUT_NAME=cv_daisei  # Custom name in branch folder"
+	@echo "  make                        # Compiles all .tex in 2026.05.algovia.airbus/"
+	@echo "  make CUSTOMER=              # Compiles main.tex from root"
