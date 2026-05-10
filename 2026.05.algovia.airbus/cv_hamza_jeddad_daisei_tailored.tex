@@ -1,0 +1,182 @@
+\documentclass[10pt,a4paper]{altacv}
+
+\geometry{left=1.5cm,right=1.5cm,marginparwidth=6.8cm,marginparsep=1.2cm,top=1cm,bottom=1cm}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[default]{lato}
+
+\definecolor{VividPurple}{HTML}{04595e}
+\definecolor{SlateGrey}{HTML}{2E2E2E}
+\definecolor{LightGrey}{HTML}{666666}
+\colorlet{heading}{VividPurple}
+\colorlet{accent}{VividPurple}
+\colorlet{emphasis}{SlateGrey}
+\colorlet{body}{LightGrey}
+
+\renewcommand{\itemmarker}{{\small\textbullet}}
+\renewcommand{\ratingmarker}{\faCircle}
+
+\begin{document}
+\name{Hamza Jeddad}
+\tagline{Generative AI \& Agentic Platforms Expert}
+
+\personalinfo{%
+  \email{jeddad.hamza@gmail.com}
+  \phone{+33 6 19 47 01 79}
+  \linkedin{https://www.linkedin.com/in/hjeddad/}
+  \location{Paris, France}
+}
+
+\begin{fullwidth}
+\makecvheader
+\end{fullwidth}
+
+\AtBeginEnvironment{itemize}{\small}
+
+\cvsection{Professional Summary}
+AI/ML Engineer with 6+ years of experience building \textbf{production Generative AI systems, enterprise chatbots, and intelligent automation workflows}. Deep expertise in \textbf{LLM orchestration, RAG, agentic patterns (tool-calling, multi-agent), and human-in-the-loop} validation. Proven track record bridging the gap between platform capabilities and business value — translating complex technical architectures into clear, actionable knowledge for cross-functional stakeholders and end-users. Experienced in \textbf{agile delivery, PoC prototyping, and full remote collaboration}.
+
+\cvsection{Work Experience}
+
+\cvevent{\textbf{Senior AI Engineer}}{Leboncoin}{Nov 2025 -- Feb 2026}{Paris, France}
+\begin{itemize}
+  \item Contributed to \textbf{Markus}, Leboncoin's customer support chatbot serving millions of users, designing \textbf{conversational AI flows} with LLM-based dialogue management, intent classification, entity extraction, and context-aware response generation.
+  \item Built \textbf{RAG pipelines} grounding chatbot responses in knowledge bases, FAQs, and policy documents — reducing hallucinations and improving answer accuracy.
+  \item Designed \textbf{autonomous triage and escalation logic} using agentic patterns to minimize manual intervention while maintaining quality, intelligently routing complex cases.
+  \item Implemented \textbf{guardrails and safety mechanisms} for edge cases and inappropriate queries, with seamless escalation to human agents (human-in-the-loop).
+  \item Architected integration patterns connecting the chatbot to backend systems, knowledge bases, and ticketing workflows — ensuring \textbf{GDPR compliance} and data sovereignty.
+  \item Created \textbf{technical documentation and walkthroughs} of chatbot architecture, flows, and integration patterns for cross-functional teams (product, UX, support).
+  \item Monitored performance metrics (resolution rate, satisfaction, escalation rate) and drove continuous improvements based on production data and user feedback.
+\end{itemize}
+\textit{Stack: Python, LangChain, LangGraph, OpenAI/Anthropic APIs, RAG, FastAPI, Docker, AWS/GCP}
+
+\divider
+
+\cvevent{\textbf{Senior AI Engineer}}{Mérieux NutriSciences}{Oct 2025 -- Feb 2026}{Full Remote}
+\begin{itemize}
+  \item Built a matching engine combining \textbf{rules + fuzzy matching} with \textbf{LLM-assisted mapping (Gemini with tool/function calling)} for candidate generation and validation, applying confidence scores and thresholds.
+  \item Implemented \textbf{human-in-the-loop review}: results routed to reviewers for approval/correction; captured feedback for continuous improvement and auditability.
+  \item Engineered ingestion, validation, and export tools supporting repeatable batch jobs and future real-time endpoints.
+  \item Documented system architecture and created \textbf{reusable how-to guides} for onboarding and knowledge transfer.
+\end{itemize}
+\textit{Stack: Python, Gemini (function calling); AWS}
+
+\divider
+
+\cvevent{\textbf{Senior AI/ML Engineer}}{Interencheres}{Nov 2024 -- Oct 2025}{Paris, France}
+
+\begin{itemize}
+  \item Built production AI systems for catalog enrichment and pricing across \textbf{~3M items/year}. Collaborated daily with business experts (m\'etier) and backend engineers; added \textbf{human-in-the-loop} validation to all LLM services.
+  \item \textbf{AI Classification (hierarchical, multi-label)}
+  \begin{itemize}
+    \item Designed a tree-based taxonomy (domain $\rightarrow$ subdomain $\rightarrow$ category $\rightarrow$ subcategory), expanding from \textbf{63 $\rightarrow$ 108} categories; supported \textbf{up to 3 labels} per domain.
+    \item \textbf{Hierarchical prompting} with \textbf{LangChain/LangGraph}; each node returns \textbf{Pydantic-validated JSON} (label, confidence, justification). Guardrails: schema checks, strict node lists, and context minimization to reduce hallucinations.
+    \item Built a Flask annotation platform for sampling-based review by seller/period/region; tracked experiments and metrics in MLflow. Added seller post-prod validation to measure live accuracy. Created \textbf{how-to guides and documentation} covering taxonomy design, prompting strategies, and annotation workflows.
+    \item Benchmarked multiple providers (OpenAI mini, Bedrock Titan/Llama, Gemini) for latency/cost/quality; selected \textbf{OpenAI mini} as best trade-off.
+    \item \textbf{Outcome:} \textbf{~95\% accuracy} on validation; powering category filters on site.
+  \end{itemize}
+  \item \textbf{Category-Aware Characteristics Extraction}
+  \begin{itemize}
+    \item From raw descriptions/images, extracted \textbf{category-dependent attributes} (e.g., cars: brand/model/mileage; jewelry: material/weight) to unlock \textbf{filters, dashboards, similar-item retrieval}.
+    \item Prompt-based extraction with strict JSON schema, multilingual models, unit normalization, and \textbf{ReAct-style reasoning} requiring evidence/justification per field to limit hallucinations.
+    \item Same HITL workflow via annotation UI; deployed as FastAPI on AWS with Docker; shared observability via MLflow.
+  \end{itemize}
+  \item \textbf{Image-Driven Item Valuation (advanced prototype)}
+  \begin{itemize}
+    \item Pipeline: DINOv2-Large embeddings $\rightarrow$ Qdrant vector search (visual comps) $\rightarrow$ LLM image description $\rightarrow$ classification $\rightarrow$ Elasticsearch more\_like\_this (+ category filter) $\rightarrow$ LLM similarity judge \& query refinement $\rightarrow$ LLM price estimation from comparables.
+    \item Achieved \textbf{~30\% average error} on historical hammer prices. Status: experimental; integrating feedback loops and cost/latency controls.
+  \end{itemize}
+  \item Infra: FastAPI, Docker, AWS EC2/SageMaker, asyncio; tooling: LangChain, LangGraph, MLflow, Pydantic, Qdrant, Elasticsearch; LLMs: OpenAI mini, Bedrock (Titan/Llama), Gemini.
+\end{itemize}
+\textit{Stack: Python, LangChain, LangGraph, MLflow, Pydantic, FastAPI, Flask, Docker, AWS EC2/SageMaker, Qdrant, Elasticsearch, OpenAI/Bedrock/Gemini, asyncio}
+
+\divider
+
+\cvevent{\textbf{Senior ML Engineer}}{AntVoice}{Nov 2022 -- Oct 2024}{Paris, France}
+\begin{itemize}
+  \item Contributed to AntVoice's DSP managing ad campaigns on the open web (RTB). Operated at \textbf{1B+ queries/day} with strict latency and budget constraints.
+  \item \textbf{RTB Prediction Models (CTR/CVR/Viewability/Qualification)}
+  \begin{itemize}
+    \item Built models for post-impression and post-view clicks, conversions, view rate, and post-click qualification.
+    \item Designed the bid pricing function \small($price=f(p_{click},p_{view},p_{conv},...)$\small) integrating market dynamics, win-rate, and margin constraints under fixed monthly budgets.
+    \item Led feature engineering \& audience segmentation (retargeting vs. acquisition). \textbf{Result: +20\% CTR} (1.0 $\rightarrow$ 1.2\%).
+  \end{itemize}
+  \item \textbf{A/B Testing \& Experimentation}
+  \begin{itemize}
+    \item User-level randomized traffic split (A/B/C) to challenge new models fairly against baseline; near real-time monitoring in Looker Studio.
+  \end{itemize}
+  \item \textbf{MLOps \& Monitoring}
+  \begin{itemize}
+    \item Orchestrated pipelines with Airflow; containerized deployments to Vertex AI. Monitoring for feature drift, unseen values, performance degradation; threshold-based retraining; human-in-the-loop approval for production.
+  \end{itemize}
+  \item \textbf{Collaboration \& Reporting}
+  \begin{itemize}
+    \item Weekly sessions with account managers; monthly product updates to cross-functional stakeholders — translating technical ML metrics into business impact.
+  \end{itemize}
+\end{itemize}
+\textit{Stack: Python, Scikit-learn, CatBoost, ONNX, Airflow, Vertex AI, BigQuery, Looker Studio, Docker, GCP}
+
+\divider
+
+\cvevent{\textbf{Data Scientist}}{Direct Assurance (AXA Group)}{Jan 2020 -- Oct 2022}{Paris, France}
+\begin{itemize}
+  \item Worked across two departments: \textbf{Claims} (automation) and \textbf{Actuarial} (commercial premium optimization).
+  \item \textbf{Claims Automation}
+  \begin{itemize}
+    \item Built \textbf{OCR+NLP extraction} for diverse documents (invoices, records, forms) with rule-based validation.
+    \item Implemented RPA (Selenium) and overnight batch jobs to automate data entry — replacing fully manual processes and reducing lead time and errors.
+  \end{itemize}
+  \item \textbf{Commercial Premium Optimization (Actuarial)}
+  \begin{itemize}
+    \item Built conversion models (LogReg, CatBoost) capturing price elasticity; combined with pure premium and renewal models to forecast \textbf{7-year CLV}.
+    \item Two-step optimization: (1) simulate price scenarios under constraints; (2) train meta-model mapping features to optimal margin.
+    \item Delivered \textbf{Dash/Plotly dashboards} and \textbf{Databricks notebooks (PySpark)} for A/B testing. Cadence: new releases every 2 months with typical +0.5pt gains per iteration.
+  \end{itemize}
+  \item Collaboration: actuaries, data engineers, and business teams; field discovery with m\'etier for claims automation.
+\end{itemize}
+\textit{Stack: Python, SQL, Azure, Databricks, PySpark, CatBoost, Scikit-learn, Dash, Plotly, Selenium}
+
+\divider
+
+\cvevent{\textbf{NLP Research Intern}}{AXA France}{May 2019 -- Oct 2019}{Paris, France}
+\begin{itemize}
+  \item Fine-tuned \textbf{BERT-based NER models} for unstructured insurance documents (beneficiary, claim type, coverage) using transfer learning.
+  \item Improved extraction quality through domain-specific tokenization and careful hyperparameter tuning.
+\end{itemize}
+\textit{Tools: BERT, Transformers, PyTorch, TensorFlow}
+
+\divider
+
+\cvevent{\textbf{Developer \& Data Science Intern}}{Paris Digital Lab}{Feb 2017 -- Jul 2017}{Paris, France}
+\begin{itemize}
+  \item Built recommendation systems and \textbf{chatbots} for clients (AccorHotels, Foncia) to automate customer support and engagement.
+  \item Managed delivery from requirements to working prototypes — demonstrating early \textbf{PoC-to-production} capability.
+\end{itemize}
+\textit{Tools: Python, NLP, Machine Learning, Pandas, Scikit-learn}
+
+\cvsection{Education}
+\cvevent{\textbf{Master of Science: Artificial Intelligence}}{CentraleSupélec (École Centrale Paris)}{Sept 2018 -- Dec 2019}{Paris, France}
+\divider
+\cvevent{\textbf{Master of Engineering: Applied Mathematics \& Computer Science}}{CentraleSupélec (École Centrale Paris)}{Sept 2015 -- Dec 2019}{Paris, France}
+
+\cvsection{Skills}
+\begin{itemize}
+  \item \textbf{GenAI \& LLMs:} Conversational AI, LLM orchestration, LangChain, LangGraph, RAG, ReAct, prompt engineering, fine-tuning, multimodal flows, guardrails, human-in-the-loop.
+  \item \textbf{Agentic AI:} Autonomous agents, tool-calling, multi-agent orchestration, hierarchical prompting, autonomous triage and escalation.
+  \item \textbf{Enterprise Integration:} Knowledge base integration, ticketing systems, GDPR compliance, data sovereignty, IT automation.
+  \item \textbf{Technical Communication:} Technical documentation, how-to guides, PoC walkthroughs, cross-functional stakeholder presentations, business-to-technical translation.
+  \item \textbf{Machine Learning:} Scikit-learn, CatBoost, XGBoost, PyTorch, TensorFlow, ONNX, classification, regression, feature engineering.
+  \item \textbf{Data Engineering:} BigQuery, PostgreSQL, MongoDB, Elasticsearch, Qdrant, Airflow, Spark, vector databases.
+  \item \textbf{MLOps:} Vertex AI, SageMaker, Docker, CI/CD, observability, monitoring, drift detection, experiment tracking (MLflow).
+  \item \textbf{Software Engineering:} Python, FastAPI, asyncio, Flask, Dash, Git, testing, code reviews, Pydantic validation.
+  \item \textbf{Cloud:} AWS, GCP, Azure.
+  \item \textbf{Visualization \& Reporting:} Dash, Plotly, Looker Studio.
+\end{itemize}
+
+\cvsection{Languages}
+\textbf{English:} Professional proficiency (near-native) \\
+\textbf{French:} Bilingual \\
+\textbf{Arabic:} Native
+
+\end{document}

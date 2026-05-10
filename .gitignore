@@ -21,3 +21,6 @@
 
 ## Generated PDFs (uncomment if you don't want to track generated PDFs)
 # *.pdf
+
+## Build output PDF
+main.pdf
