@@ -1,0 +1,23 @@
+## Build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.idx
+*.ind
+*.ilg
+*.dvi
+*.ps
+*.xdv
+
+## Generated PDFs (uncomment if you don't want to track generated PDFs)
+# *.pdf
